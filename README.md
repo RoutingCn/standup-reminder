@@ -1,63 +1,76 @@
 # 起身 StandUp — 久坐提醒 · 随机运动 · 视频陪练
 
-## 项目结构
+一个简单直接的 Flutter 久坐提醒 App。精选 18 个动作 + 随机抽取 + 视频陪练 + 全屏跟练，支持手动添加自己的运动视频和分类。
 
-```
-standup/
-├── pubspec.yaml              # 依赖配置
-├── lib/
-│   ├── main.dart             # 入口，初始化通知 & 路由
-│   ├── models/
-│   │   ├── exercise.dart     # 运动动作模型
-│   │   └── session_record.dart # 运动记录模型
-│   ├── services/
-│   │   ├── database_service.dart    # SQLite 数据库 (18个预置动作)
-│   │   ├── exercise_service.dart    # 推荐算法 (加权随机+分类轮换)
-│   │   └── notification_service.dart # 本地通知 (锁屏也能弹)
-│   └── screens/
-│       ├── home_screen.dart      # 首页：提醒状态、快捷入口
-│       ├── exercise_screen.dart  # 运动页：视频播放、倒计时
-│       ├── history_screen.dart   # 历史记录、周统计图
-│       └── settings_screen.dart  # 提醒间隔、时长限制
-└── assets/videos/            # 放你的 mp4 视频文件
-```
+## 功能
+
+- ⏰ **定时提醒**：每 30/60/90 分钟提醒起身活动，Android 锁屏也能弹
+- 🎲 **随机推荐**：加权轮转算法，最近做过的降权，跨分类轮换
+- 🎬 **视频跟练**：全屏播放 + 倒计时，自动循环
+- ✏️ **自定义动作**：添加自己的运动（名称、描述、时长、视频）
+- 📂 **自定义分类**：创建自己的分类（图标、颜色可自定义）
+- 📊 **运动记录**：完成记录 + 历史统计
+- 🎯 **无需视频**：视频缺失时自动降级为文字指导模式
 
 ## 快速开始
 
-### 1. 安装 Flutter
-https://docs.flutter.dev/get-started/install
-
-### 2. 创建 Flutter 项目并覆盖代码
 ```bash
-flutter create standup
-cd standup
-# 把本项目的 lib/ 和 assets/ 覆盖过去
-# 用本项目的 pubspec.yaml 替换自动生成的
 flutter pub get
-```
-
-### 3. 添加视频
-把拍好的 mp4 文件放到 `assets/videos/`，文件名要和 `database_service.dart` 里 `_seedExercises` 中的 `video_filename` 对应：
-- neck_stretch.mp4
-- shoulder_rolls.mp4
-- wrist_stretch.mp4
-- ... 等
-
-### 4. Android 通知权限配置
-打开 `android/app/src/main/AndroidManifest.xml`，在 `<manifest>` 下添加：
-```xml
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-```
-
-### 5. 运行
-```bash
 flutter run
 ```
 
-## 核心设计
+## 构建 APK
 
-- **视频本地存储**：视频文件打包在 assets 中，首次使用即本地播放，零网络依赖
-- **推荐算法**：最近做过的降低权重，越久没做的越优先，同时按拉伸→灵活→力量→放松轮换
-- **后台提醒**：用系统级通知调度，App 被杀死也能准时弹提醒
-- **无视频也能用**：如果视频文件缺失，自动降级为文字指导模式
+```bash
+flutter build apk --release --no-tree-shake-icons
+```
+
+APK 生成在 `build/app/outputs/flutter-apk/app-release.apk`
+
+## 项目结构
+
+```
+lib/
+├── main.dart                          # 入口
+├── models/
+│   ├── exercise.dart                  # 运动动作模型
+│   ├── exercise_category.dart         # 分类模型（图标池+颜色池）
+│   └── session_record.dart            # 运动记录模型
+├── screens/
+│   ├── home_screen.dart               # 首页：提醒状态、随机入口、分类快速开始
+│   ├── exercise_screen.dart           # 运动页：视频全屏 + 倒计时
+│   ├── exercise_manager_screen.dart   # 运动库管理
+│   ├── exercise_form_screen.dart      # 新增/编辑动作表单
+│   ├── category_manager_screen.dart   # 分类管理
+│   ├── history_screen.dart            # 运动历史记录
+│   └── settings_screen.dart           # 提醒间隔、运动偏好
+└── services/
+    ├── database_service.dart          # SQLite 数据库（18 个预置动作）
+    ├── exercise_service.dart          # 加权轮转推荐算法
+    ├── notification_service.dart      # 本地通知（时区感知）
+    └── video_service.dart             # 视频选取 + 校验
+```
+
+## 技术栈
+
+- Flutter 3.44+ / Dart 3.x
+- sqflite（本地数据库，v5 迁移）
+- flutter_local_notifications（时区感知的定时通知）
+- file_picker（从设备选取视频文件）
+- video_player（视频播放）
+- shared_preferences（配置持久化）
+- provider（状态管理）
+
+## 数据库版本
+
+| 版本 | 变更 |
+|------|------|
+| v1 | 初始数据库：exercises + session_records |
+| v2 | 添加 video_source, is_builtin 列 |
+| v3 | 添加 categories 表 + category_id 列 |
+| v4 | 逐列 PRAGMA 安全迁移 |
+| v5 | 删除旧 `category` 残留列 |
+
+## 许可
+
+MIT
