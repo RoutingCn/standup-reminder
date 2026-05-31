@@ -11,7 +11,7 @@ class ExerciseScreen extends StatefulWidget {
   State<ExerciseScreen> createState() => _ExerciseScreenState();
 }
 
-class _ExerciseScreenState extends State<ExerciseScreen> with SingleTickerProviderStateMixin {
+class _ExerciseScreenState extends State<ExerciseScreen> with TickerProviderStateMixin {
   VideoPlayerController? _vc; bool _videoOk=false, _done=false, _full=false, _showCtrl=true;
   Timer? _ctrlHide, _countdown; late int _remain; bool _playing=false; int? _sid;
   String _catName = "";
