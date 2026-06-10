@@ -1,7 +1,7 @@
 name: standup
 description: 久坐提醒 · 随机运动 · 视频陪练
 publish_to: 'none'
-version: 1.1.0+4
+version: 1.1.1+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
