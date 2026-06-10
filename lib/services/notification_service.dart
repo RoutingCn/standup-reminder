@@ -49,7 +49,7 @@ class NotificationService {
     await _plugin.zonedSchedule(
         _notificationId,
         '⏰ 该起身活动一下了！',
-        '已经坐了 $intervalMinutes 分钟，来做个 ${hints[DateTime.now().millisecond % hints.length]} 吧',
+        '已经坐了 $intervalMinutes 分钟，来做个 ${hints[DateTime.now().millisecond % hints.length]} 吧。该锻炼了！施教授提醒你别忘了喝水1',
         scheduled,
         const NotificationDetails(
             android: AndroidNotificationDetails('standup_reminder', '起身提醒',
