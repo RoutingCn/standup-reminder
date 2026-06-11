@@ -37,6 +37,10 @@ class StandUpApp extends StatelessWidget {
       title: '起身',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      builder: (context, child) => GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child),
       theme: ThemeData(
           brightness: Brightness.dark,
           primaryColor: const Color(0xFFFF6B35),
