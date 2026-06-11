@@ -4,7 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'services/notification_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/exercise_screen.dart';
-import 'services/exercise_service.dart';
+import 'services/plan_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +17,12 @@ void main() async {
   await NotificationService.init();
   NotificationService.onNotificationTap = (payload) async {
     if (payload == 'reminder') {
-      final svc = ExerciseService();
-      final e = await svc.recommendWithRotation();
-      if (e != null)
+      final svc = PlanService();
+      final e = await svc.recommendFromActivePlan();
+      if (e != null) {
         navigatorKey.currentState?.push(
             MaterialPageRoute(builder: (_) => ExerciseScreen(exercise: e)));
+      }
     }
   };
   runApp(const StandUpApp());
