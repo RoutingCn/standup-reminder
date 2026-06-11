@@ -8,7 +8,7 @@ import '../models/session_record.dart';
 class DatabaseService {
   static Database? _database;
   static const _dbName = 'standup.db';
-  static const _dbVersion = 6;
+  static const _dbVersion = 7;
 
   static Future<Database> get database async {
     _database ??= await _initDatabase();
@@ -121,6 +121,26 @@ class DatabaseService {
       await _createPlanTables(db);
       await _seedDefaultPlan(db);
     }
+
+    if (oldVersion < 7) {
+      await _deleteBuiltinExercise(db, '椅式深蹲', 'chair_squat.mp4');
+    }
+  }
+
+  static Future<void> _deleteBuiltinExercise(
+      Database db, String name, String videoPath) async {
+    final rows = await db.query('exercises',
+        columns: ['id'],
+        where: 'name = ? AND video_path = ? AND is_builtin = 1',
+        whereArgs: [name, videoPath],
+        limit: 1);
+    if (rows.isEmpty) return;
+    final id = rows.first['id'] as int;
+    await db.delete('exercise_plan_items',
+        where: 'exercise_id = ?', whereArgs: [id]);
+    await db
+        .delete('session_records', where: 'exercise_id = ?', whereArgs: [id]);
+    await db.delete('exercises', where: 'id = ?', whereArgs: [id]);
   }
 
   static Future<void> _createPlanTables(Database db) async {
@@ -252,8 +272,6 @@ class DatabaseService {
           'hip_flexor.mp4', 'asset', 'medium', 'hip,standing'),
       _e('靠墙静蹲', '背靠墙半蹲，大腿与地面平行，保持30秒。', cid('strength'), 45, 'wall_sit.mp4',
           'asset', 'medium', 'legs,core,standing'),
-      _e('椅式深蹲', '站在椅子前，下蹲轻触椅面后起立。做10次。', cid('strength'), 45,
-          'chair_squat.mp4', 'asset', 'easy', 'legs,standing', 'chair'),
       _e('桌面俯卧撑', '双手撑在办公桌边缘，身体倾斜做俯卧撑10-12次。', cid('strength'), 40,
           'desk_pushup.mp4', 'asset', 'easy', 'chest,arms,standing'),
       _e('提踵运动', '站立缓慢踮起脚尖至最高点，保持2秒放下。做15次。', cid('strength'), 35,
